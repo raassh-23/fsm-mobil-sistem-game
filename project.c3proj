@@ -1,6 +1,6 @@
 {
 	"projectFormatVersion": 1,
-	"savedWithRelease": 32702,
+	"savedWithRelease": 33600,
 	"name": "New project",
 	"runtime": "c3",
 	"useWorker": "auto",
@@ -31,7 +31,24 @@
 	},
 	"rootFileFolders": {
 		"script": {
-			"items": [],
+			"items": [
+				{
+					"name": "main.js",
+					"type": "application/javascript",
+					"sid": 391368571666445,
+					"script-info": {
+						"purpose": "main"
+					}
+				},
+				{
+					"name": "fsm.js",
+					"type": "application/javascript",
+					"sid": 273531827676440,
+					"script-info": {
+						"purpose": "none"
+					}
+				}
+			],
 			"subfolders": []
 		},
 		"sound": {
