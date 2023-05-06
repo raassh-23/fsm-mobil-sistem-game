@@ -1,9 +1,23 @@
 import { createMachine } from "./fsm.js";
 
 /**
- * @type {import("./fsm").StateMachine}
+ * @typedef {import('./fsm.js').StateMachine} StateMachine
+ */
+
+/**
+ * @type {StateMachine}
  */
 let fsmKopling = null;
+
+/**
+ * @type {StateMachine}
+ */
+let fsmGas = null;
+
+/**
+ * @type {StateMachine}
+ */
+let fsmPersneling = null;
 
 /**
  * @type {ITextInstance}
@@ -80,12 +94,12 @@ async function OnBeforeProjectStart(runtime) {
 							runtime,
 							fsmKoplingText.x,
 							fsmKoplingText.y + fsmKoplingText.height,
-							"fsm_kopling_unpressed_action_1",
+							"fsm_kopling_0_action_1",
 							"Injak Kopling",
 						);
 					},
 					onExit: () => {
-						destroyTextById(runtime, "fsm_kopling_unpressed_action_1");
+						destroyTextById(runtime, "fsm_kopling_0_action_1");
 					}
 				},
 				transitions: {
@@ -101,17 +115,125 @@ async function OnBeforeProjectStart(runtime) {
 							runtime,
 							fsmKoplingText.x,
 							fsmKoplingText.y + fsmKoplingText.height,
-							"fsm_kopling_pressed_action_1",
+							"fsm_kopling_1_action_1",
 							"Lepas Kopling",
 						);
 					},
 					onExit: () => {
-						destroyTextById(runtime, "fsm_kopling_pressed_action_1");
+						destroyTextById(runtime, "fsm_kopling_1_action_1");
 					}
 				},
 				transitions: {
 					release: {
 						target: "0",
+					},
+				},
+			},
+		},
+	});
+
+	fsmGas = createMachine({
+		initialState: "0",
+		states: {
+			"0": {
+				actions: {
+					onEnter: () => {
+						createClickableText(
+							runtime,
+							fsmGasText.x,
+							fsmGasText.y + fsmGasText.height,
+							"fsm_gas_0_action_1",
+							"Injak Gas",
+						);
+					},
+					onExit: () => {
+						destroyTextById(runtime, "fsm_gas_0_action_1");
+					}
+				},
+				transitions: {
+					press: {
+						target: "1",
+					}
+				},
+			},
+			"1": {
+				actions: {
+					onEnter: () => {
+						createClickableText(
+							runtime,
+							fsmGasText.x,
+							fsmGasText.y + fsmGasText.height,
+							"fsm_gas_1_action_1",
+							"Lepas Gas",
+						);
+					},
+					onExit: () => {
+						destroyTextById(runtime, "fsm_gas_1_action_1");
+					}
+				},
+				transitions: {
+					release: {
+						target: "0",
+					},
+				},
+			},
+		},
+	});
+
+	fsmPersneling = createMachine({
+		initialState: "0",
+		states: {
+			"0": {
+				actions: {
+					onEnter: () => {
+						createClickableText(
+							runtime,
+							fsmPersnelingText.x,
+							fsmPersnelingText.y + fsmPersnelingText.height,
+							"fsm_persneling_0_action_1",
+							"Pindah gigi",
+						);
+					},
+					onExit: () => {
+						destroyTextById(runtime, "fsm_persneling_0_action_1");
+					}
+				},
+				transitions: {
+					changeGear: {
+						target: "1",
+						condition: {
+							evaluate: () => fsmKopling.value === "1",
+							onFalse: () => {
+								shakeText(fsmKoplingText);
+							},
+						},
+					}
+				},
+			},
+			"1": {
+				actions: {
+					onEnter: () => {
+						createClickableText(
+							runtime,
+							fsmPersnelingText.x,
+							fsmPersnelingText.y + fsmPersnelingText.height,
+							"fsm_persneling_1_action_1",
+							"Pindah Netral",
+						);
+					},
+					onExit: () => {
+						destroyTextById(runtime, "fsm_persneling_1_action_1");
+					}
+				},
+				transitions: {
+					changeGear: {
+						target: "0",
+						condition: {
+							evaluate: () => fsmKopling.value === "1",
+							onFalse: () => {
+								shakeText(fsmKoplingText);
+							},
+						},
 					},
 				},
 			},
@@ -125,6 +247,8 @@ async function OnBeforeProjectStart(runtime) {
  */
 function Tick(runtime) {
 	fsmKoplingText.text = `Kopling ${fsmKopling.value === "0" ? "dilepas" : "diinjak"}`;
+	fsmGasText.text = `Gas ${fsmGas.value === "0" ? "dilepas" : "diinjak"}`;
+	fsmPersnelingText.text = `Persneling ${fsmPersneling.value === "0" ? "netral" : "masuk gigi"}`;
 }
 
 /**
@@ -139,11 +263,23 @@ function OnPointerDown(e, runtime) {
 	for (const inst of runtime.objects.Text.instances()) {
 		if (inst.containsPoint(layerX, layerY)) {
 			switch (inst.instVars["id"]) {
-				case "fsm_kopling_unpressed_action_1":
+				case "fsm_kopling_0_action_1":
 					fsmKopling.transition("press");
 					break;
-				case "fsm_kopling_pressed_action_1":
+				case "fsm_kopling_1_action_1":
 					fsmKopling.transition("release");
+					break;
+
+				case "fsm_gas_0_action_1":
+					fsmGas.transition("press");
+					break;
+				case "fsm_gas_1_action_1":
+					fsmGas.transition("release");
+					break;
+
+				case "fsm_persneling_0_action_1":
+				case "fsm_persneling_1_action_1":
+					fsmPersneling.transition("changeGear");
 					break;
 			}
 
@@ -184,4 +320,16 @@ function destroyTextById(runtime, id) {
 			return;
 		}
 	};
+}
+
+async function wait(ms) {
+	return new Promise(resolve => setTimeout(resolve, ms));
+}
+
+function shakeText(textInstance) {
+	textInstance.behaviors.Sine.isEnabled = true;
+	
+	wait(500).then(() => {
+		textInstance.behaviors.Sine.isEnabled = false;
+	})
 }

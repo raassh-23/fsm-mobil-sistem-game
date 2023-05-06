@@ -10,6 +10,10 @@
  *      transitions: {
  *        [key: string]: {
  *          target: string,
+ *          condition?: {
+ *             evaluate: () => boolean,
+ *             onFalse?: () => void
+ *          },
  *          action?: () => void
  *        }
  *      }
@@ -41,6 +45,13 @@ export function createMachine(stateMachineDefinition) {
             const destinationTransition = currentStateDefinition.transitions[event];
 
             if (!destinationTransition) {
+                return;
+            }
+
+            const condition = destinationTransition.condition?.evaluate() ?? true;
+
+            if (!condition) {
+                destinationTransition.condition?.onFalse?.();
                 return;
             }
 
