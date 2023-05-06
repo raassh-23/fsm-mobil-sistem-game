@@ -5,10 +5,36 @@
 	"runtime": "c3",
 	"useWorker": "auto",
 	"bundleAddons": false,
-	"usedAddons": [],
+	"usedAddons": [
+		{
+			"type": "plugin",
+			"id": "EdwardBonnett_VsCodePlugin",
+			"name": "VS Code Plugin",
+			"author": "Edward Bonnett",
+			"bundled": false,
+			"version": "1.0.0.1"
+		},
+		{
+			"type": "plugin",
+			"id": "Text",
+			"name": "Text",
+			"author": "Scirra",
+			"bundled": false
+		},
+		{
+			"type": "behavior",
+			"id": "Sin",
+			"name": "Sine",
+			"author": "Scirra",
+			"bundled": false
+		}
+	],
 	"uniqueId": "y1ttgs5i0j7",
 	"objectTypes": {
-		"items": [],
+		"items": [
+			"Text",
+			"VSCodePlugin"
+		],
 		"subfolders": []
 	},
 	"autosaveData": null,

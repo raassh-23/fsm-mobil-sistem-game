@@ -1,0 +1,23 @@
+{
+	"name": "Text",
+	"plugin-id": "Text",
+	"sid": 843706965263094,
+	"isGlobal": false,
+	"instanceVariables": [
+		{
+			"name": "id",
+			"type": "string",
+			"desc": "",
+			"show": true,
+			"sid": 255029272359140
+		}
+	],
+	"behaviorTypes": [
+		{
+			"behaviorId": "Sin",
+			"name": "Sine",
+			"sid": 381486334025288
+		}
+	],
+	"effectTypes": []
+}
