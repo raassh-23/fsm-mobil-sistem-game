@@ -1,8 +1,24 @@
 import { createMachine } from "./fsm.js";
+import { createClickableText, destroyTextById, shakeText } from "./utils.js";
 
 /**
  * @typedef {import('./fsm.js').StateMachine} StateMachine
  */
+
+/**
+ * @type {StateMachine}
+ */
+let fsmMobil = null;
+
+/**
+ * @type {StateMachine}
+ */
+let fsmStarter = null;
+
+/**
+ * @type {StateMachine}
+ */
+let fsmMesin = null;
 
 /**
  * @type {StateMachine}
@@ -107,6 +123,7 @@ async function OnBeforeProjectStart(runtime) {
 						target: "1",
 					}
 				},
+				conditionalTransitions: [],
 			},
 			"1": {
 				actions: {
@@ -128,6 +145,7 @@ async function OnBeforeProjectStart(runtime) {
 						target: "0",
 					},
 				},
+				conditionalTransitions: [],
 			},
 		},
 	});
@@ -155,6 +173,7 @@ async function OnBeforeProjectStart(runtime) {
 						target: "1",
 					}
 				},
+				conditionalTransitions: [],
 			},
 			"1": {
 				actions: {
@@ -176,6 +195,7 @@ async function OnBeforeProjectStart(runtime) {
 						target: "0",
 					},
 				},
+				conditionalTransitions: [],
 			},
 		},
 	});
@@ -209,6 +229,7 @@ async function OnBeforeProjectStart(runtime) {
 						},
 					}
 				},
+				conditionalTransitions: [],
 			},
 			"1": {
 				actions: {
@@ -236,6 +257,174 @@ async function OnBeforeProjectStart(runtime) {
 						},
 					},
 				},
+				conditionalTransitions: [],
+			},
+		},
+	});
+
+	fsmStarter = createMachine({
+		initialState: "0",
+		states: {
+			"0": {
+				actions: {
+					onEnter: () => {
+						createClickableText(
+							runtime,
+							fsmStarterText.x,
+							fsmStarterText.y + fsmStarterText.height,
+							"fsm_starter_0_action_1",
+							"Masukkan Kunci Starter",
+						);
+					},
+					onExit: () => {
+						destroyTextById(runtime, "fsm_starter_0_action_1");
+					}
+				},
+				transitions: {
+					putKey: {
+						target: "1"
+					}
+				},
+				conditionalTransitions: [],
+			},
+			"1": {
+				actions: {
+					onEnter: () => {
+						createClickableText(
+							runtime,
+							fsmStarterText.x,
+							fsmStarterText.y + fsmStarterText.height,
+							"fsm_starter_1_action_1",
+							"Cabut Kunci Starter",
+						);
+						createClickableText(
+							runtime,
+							fsmStarterText.x,
+							fsmStarterText.y + fsmStarterText.height * 2,
+							"fsm_starter_1_action_2",
+							"Putar Kunci Starter",
+						);
+					},
+					onExit: () => {
+						destroyTextById(runtime, "fsm_starter_1_action_1");
+						destroyTextById(runtime, "fsm_starter_1_action_2");
+					}
+				},
+				transitions: {
+					takeKey: {
+						target: "0",
+					},
+					turnKey: {
+						target: "2",
+						condition: {
+							evaluate: () => fsmPersneling.value === "0" || fsmKopling.value === "1",
+							onFalse: () => {
+								shakeText(fsmPersnelingText);
+								shakeText(fsmKoplingText);
+							},
+						},
+					},
+				},
+				conditionalTransitions: [],
+			},
+			"2": {
+				actions: {
+					onEnter: () => {
+						createClickableText(
+							runtime,
+							fsmStarterText.x,
+							fsmStarterText.y + fsmStarterText.height,
+							"fsm_starter_2_action_1",
+							"Putar Kunci Starter",
+						);
+					},
+					onExit: () => {
+						destroyTextById(runtime, "fsm_starter_2_action_1");
+					}
+				},
+				transitions: {
+					turnKey: {
+						target: "1",
+					}
+				},
+				conditionalTransitions: [],
+			},
+		},
+	});
+
+	fsmMesin = createMachine({
+		initialState: "0",
+		states: {
+			"0": {
+				transitions: {},
+				conditionalTransitions: [
+					{
+						target: "1",
+						condition: {
+							evaluate: () => fsmStarter.value === "2",
+						}
+					},
+				],
+			},
+			"1": {
+				transitions: {},
+				conditionalTransitions: [
+					{
+						target: "0",
+						condition: {
+							evaluate: () => fsmStarter.value != "2",
+						}
+					},
+				],
+			},
+		},
+	});
+
+	fsmMobil = createMachine({
+		initialState: "0",
+		states: {
+			"0": {
+				transitions: {},
+				conditionalTransitions: [
+					{
+						target: "1",
+						condition: {
+							evaluate: () => fsmMesin.value === "1",
+						},
+					},
+				],
+			},
+			"1": {
+				transitions: {},
+				conditionalTransitions: [
+					{
+						target: "0",
+						condition: {
+							evaluate: () => fsmMesin.value === "0",
+						},
+					},
+					{
+						target: "2",
+						condition: {
+							evaluate: () => fsmPersneling.value === "1" && 
+										fsmGas.value === "1" && 
+										fsmKopling.value === "0",
+						},
+					}
+				],
+			},
+			"2": {
+				transitions: {},
+				conditionalTransitions: [
+					{
+						target: "1",
+						condition: {
+							evaluate: () => fsmPersneling.value === "0" ||
+										fsmGas.value === "0" ||
+										fsmKopling.value === "1",
+						},
+					}
+				],
 			},
 		},
 	});
@@ -246,9 +435,45 @@ async function OnBeforeProjectStart(runtime) {
  * @param {IRuntime} runtime 
  */
 function Tick(runtime) {
+	updateFSM();
+
+	let starterValue = '';
+
+	if (fsmStarter.value === "0") {
+		starterValue = "dicabut";
+	} else if (fsmStarter.value === "1") {
+		starterValue = "dimasukkan";
+	} else if (fsmStarter.value === "2") {
+		starterValue = "diputar";
+	}
+
+	let carValue = '';
+
+	if (fsmMobil.value === "0") {
+		carValue = "mati";
+	} else if (fsmMobil.value === "1") {
+		carValue = "hidup";
+	} else if (fsmMobil.value === "2") {
+		carValue = "jalan";
+	}
+
+	fsmMobilText.text = `Mobil ${carValue}`;
+	fsmStarterText.text = `Kunci Starter ${starterValue}`;
+	fsmMesinText.text = `Mesin ${fsmMesin.value === "0" ? "mati" : "hidup"}`;
 	fsmKoplingText.text = `Kopling ${fsmKopling.value === "0" ? "dilepas" : "diinjak"}`;
 	fsmGasText.text = `Gas ${fsmGas.value === "0" ? "dilepas" : "diinjak"}`;
 	fsmPersnelingText.text = `Persneling ${fsmPersneling.value === "0" ? "netral" : "masuk gigi"}`;
+}
+
+function updateFSM() {
+	for (const fsm of [fsmMobil, fsmStarter, fsmMesin, fsmKopling, fsmGas, fsmPersneling]) {
+		const result = fsm.updateConditional();
+
+		if (result) {
+			updateFSM();
+			return;
+		}
+	}
 }
 
 /**
@@ -281,55 +506,22 @@ function OnPointerDown(e, runtime) {
 				case "fsm_persneling_1_action_1":
 					fsmPersneling.transition("changeGear");
 					break;
+
+				case "fsm_starter_0_action_1":
+					fsmStarter.transition("putKey");
+					break;
+
+				case "fsm_starter_1_action_1":
+					fsmStarter.transition("takeKey");
+					break;
+
+				case "fsm_starter_1_action_2":
+				case "fsm_starter_2_action_1":
+					fsmStarter.transition("turnKey");
+					break;
 			}
 
 			break;
 		}
 	}
-}
-
-/**
- * 
- * @param {IRuntime} runtime 
- * @param {number} x 
- * @param {number} y 
- * @param {string} id 
- * @param {string} text 
- * @returns 
- */
-function createClickableText(runtime, x, y, id, text) {
-	const textInstance = runtime.objects.Text.createInstance(0, x, y);
-
-	textInstance.text = text;
-	textInstance.instVars["id"] = id;
-	textInstance.isBold = true;
-
-	return textInstance;
-}
-
-/**
- * 
- * @param {IRuntime} runtime 
- * @param {string} id 
- * @returns 
- */
-function destroyTextById(runtime, id) {
-	for (const textInstance of runtime.objects.Text.instances()) {
-		if (textInstance.instVars["id"] === id) {
-			textInstance.destroy();
-			return;
-		}
-	};
-}
-
-async function wait(ms) {
-	return new Promise(resolve => setTimeout(resolve, ms));
-}
-
-function shakeText(textInstance) {
-	textInstance.behaviors.Sine.isEnabled = true;
-	
-	wait(500).then(() => {
-		textInstance.behaviors.Sine.isEnabled = false;
-	})
 }
