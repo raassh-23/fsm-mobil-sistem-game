@@ -466,14 +466,16 @@ function Tick(runtime) {
 }
 
 function updateFSM() {
-	for (const fsm of [fsmMobil, fsmStarter, fsmMesin, fsmKopling, fsmGas, fsmPersneling]) {
-		const result = fsm.updateConditional();
+	const fsms = [fsmMobil, fsmStarter, fsmMesin, fsmKopling, fsmGas, fsmPersneling];
 
-		if (result) {
-			updateFSM();
-			return;
-		}
+	const result = fsms.some(fsm => fsm.updateConditional());;
+
+	if (result) {
+		updateFSM();
+		return;
 	}
+
+	fsms.forEach(fsm => fsm.tick());
 }
 
 /**

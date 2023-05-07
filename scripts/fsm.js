@@ -5,7 +5,8 @@
  *    [key: string]: {
  *      actions?: {
  *        onEnter?: (() => void),
- *        onExit?: (() => void)
+ *        onExit?: (() => void),
+ *        onTick?: (() => void),
  *      },
  *      transitions: {
  *        [key: string]: {
@@ -36,7 +37,8 @@
  * @typedef {{
  *   value: string,
  *   transition: (event: string) => string,
- *   updateConditional: () => boolean
+ *   updateConditional: () => boolean,
+ *   tick: () => void
  * }} StateMachine
  */
 
@@ -94,6 +96,10 @@ export function createMachine(stateMachineDefinition) {
 
             return false;
         },
+        tick: function() {
+            const currentStateDefinition = stateMachineDefinition.states[this.value];
+            currentStateDefinition.actions?.onTick?.();
+        }
     }
 
     const initialStateDefinition = stateMachineDefinition.states[machine.value];
