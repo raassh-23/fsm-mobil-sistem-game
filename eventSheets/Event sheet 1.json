@@ -1,5 +1,59 @@
 {
 	"name": "Event sheet 1",
-	"events": [],
+	"events": [
+		{
+			"eventType": "block",
+			"conditions": [
+				{
+					"id": "cursor-is-over-object",
+					"objectClass": "Mouse",
+					"sid": 161795182035607,
+					"parameters": {
+						"object": "Text"
+					}
+				},
+				{
+					"id": "is-boolean-instance-variable-set",
+					"objectClass": "Text",
+					"sid": 844483904391526,
+					"parameters": {
+						"instance-variable": "clickable"
+					}
+				}
+			],
+			"actions": [
+				{
+					"id": "set-cursor-style",
+					"objectClass": "Mouse",
+					"sid": 827047645362939,
+					"parameters": {
+						"cursor-style": "hand"
+					}
+				}
+			],
+			"sid": 353980979023939
+		},
+		{
+			"eventType": "block",
+			"conditions": [
+				{
+					"id": "else",
+					"objectClass": "System",
+					"sid": 591056216753084
+				}
+			],
+			"actions": [
+				{
+					"id": "set-cursor-style",
+					"objectClass": "Mouse",
+					"sid": 186531570974691,
+					"parameters": {
+						"cursor-style": "normal"
+					}
+				}
+			],
+			"sid": 879667820802677
+		}
+	],
 	"sid": 585810966402384
 }

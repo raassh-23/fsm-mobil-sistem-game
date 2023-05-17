@@ -1,7 +1,7 @@
 {
 	"projectFormatVersion": 1,
 	"savedWithRelease": 33600,
-	"name": "New project",
+	"name": "FSM Mobil",
 	"runtime": "c3",
 	"useWorker": "auto",
 	"bundleAddons": false,
@@ -13,6 +13,13 @@
 			"author": "Edward Bonnett",
 			"bundled": false,
 			"version": "1.0.0.1"
+		},
+		{
+			"type": "plugin",
+			"id": "Mouse",
+			"name": "Mouse",
+			"author": "Scirra",
+			"bundled": false
 		},
 		{
 			"type": "plugin",
@@ -33,7 +40,8 @@
 	"objectTypes": {
 		"items": [
 			"Text",
-			"VSCodePlugin"
+			"VSCodePlugin",
+			"Mouse"
 		],
 		"subfolders": []
 	},

@@ -11,8 +11,9 @@ export function createClickableText(runtime, x, y, id, text) {
 	const textInstance = runtime.objects.Text.createInstance(0, x, y);
 
 	textInstance.text = text;
-	textInstance.instVars["id"] = id;
+	textInstance.instVars.id = id;
 	textInstance.isBold = true;
+	textInstance.instVars.clickable = true;
 
 	return textInstance;
 }
@@ -25,7 +26,7 @@ export function createClickableText(runtime, x, y, id, text) {
  */
 export function destroyTextById(runtime, id) {
 	for (const textInstance of runtime.objects.Text.instances()) {
-		if (textInstance.instVars["id"] === id) {
+		if (textInstance.instVars.id === id) {
 			textInstance.destroy();
 			return;
 		}
